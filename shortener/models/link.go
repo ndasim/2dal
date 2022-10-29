@@ -2,10 +2,10 @@ package models
 
 import (
 	"2dal/core"
-	"2dal/shortener/db"
 	"time"
 
 	"github.com/catinello/base62"
+	"github.com/getsentry/sentry-go"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -19,9 +19,7 @@ type Link struct {
 	User             User
 }
 
-func (link *Link) Create(origin string, alias string, user *User) {
-	db.GetConnection()
-
+func (link *Link) Create(origin string, alias string, user *User) error{
 	// Make sure to pass the model by reference (to update the model's "updated_at", "created_at" and "id" fields by mgm).
 	collection := mgm.Coll(link)
 
@@ -29,7 +27,7 @@ func (link *Link) Create(origin string, alias string, user *User) {
 		count, err := collection.CountDocuments(mgm.Ctx(), bson.D{})
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		link.Alias = Rhash(int(count))
@@ -51,11 +49,30 @@ func (link *Link) Create(origin string, alias string, user *User) {
 	print("\n")
 	print(base62.Encode(int(time.Now().UnixNano() - core.StartTime)))
 
-	err := collection.Create(link)
-
-	if err != nil {
-		panic(err)
+	if err := collection.Create(link); err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (link *Link) FindLink(alias string) error{
+	model := mgm.Coll(link)
+
+	result := []Link{}
+
+	err := model.SimpleFind(&result, bson.D{{Key: "alias", Value: alias}})
+	if err != nil{
+		return err;
+	}
+
+	if len(result) > 0 {
+		sentry.CaptureMessage("alias: " + alias + " has returned more than one link!")
+	}
+	
+	link.Origin_url = result[0].Origin_url
+
+	return nil;
 }
 
 func Rhash(n int) string {

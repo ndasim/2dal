@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/stvp/rollbar"
@@ -104,6 +106,17 @@ func ValidationErrorToText(e validator.FieldError) string {
 // This method collects all errors and submits them to Rollbar
 func Errors() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		defer func(c *gin.Context) {
+			if err := recover(); err != nil {
+				sentry.CurrentHub().Recover(err)
+				sentry.Flush(time.Second * 5)
+
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": err,
+				})
+			}
+		}(c)
+
 		c.Next()
 		// Only run if there are some errors to handle
 		if len(c.Errors) > 0 {

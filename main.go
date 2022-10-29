@@ -7,6 +7,7 @@ import (
 	"2dal/shortener/middleware"
 	"2dal/shortener/models"
 	"fmt"
+	"log"
 	"math/big"
 	"time"
 
@@ -18,6 +19,8 @@ import (
 
 	"github.com/kamva/mgm/v3"
 	"golang.org/x/exp/slices"
+
+	"github.com/getsentry/sentry-go"
 )
 
 type Book struct {
@@ -35,15 +38,39 @@ func NewBook(name string, pages int) *Book {
 }
 
 func main() {
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn: "https://32109d4bacdc44b2bdf09093dc28ff2a@o1306780.ingest.sentry.io/4504068517199872",
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		Environment:      "debug",
+		Debug:            true,
+		TracesSampleRate: 1.0,
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+
+	err = db.GetConnection()
+
+	if err != nil {
+		sentry.CaptureException(err)
+	}
+
 	router := gin.Default()
 
 	router.Use(middleware.Errors())
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	router.Static("/assets", "./assets")
+	router.Static("/static", "./static")
+	router.LoadHTMLGlob("static/forwarder.html")
 	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
 	router.GET("/api/qr", shortener.CreateQR)
+
+	router.GET("/api/:alias", func(ctx *gin.Context) {
+		ctx.ShouldBindUri(&shortener.OpenLinkStruct{})
+	}, shortener.OpenLink)
 
 	// Register custom validators
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -57,6 +84,15 @@ func main() {
 	//fmt.Println(len(uniques))
 	//fmt.Println(len(uniques))
 	//fmt.Println(len(uniques))
+
+	defer func() {
+		err := recover()
+
+		if err != nil {
+			sentry.CurrentHub().Recover(err)
+			sentry.Flush(time.Second * 5)
+		}
+	}()
 }
 
 func someTest() {
