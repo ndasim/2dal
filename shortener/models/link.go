@@ -66,7 +66,7 @@ func (link *Link) FindLink(alias string) error{
 		return err;
 	}
 
-	if len(result) > 0 {
+	if len(result) > 1 {
 		sentry.CaptureMessage("alias: " + alias + " has returned more than one link!")
 	}
 	
