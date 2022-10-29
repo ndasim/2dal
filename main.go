@@ -68,7 +68,7 @@ func main() {
 	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
 	router.GET("/api/qr", shortener.CreateQR)
 
-	router.GET("/api/:alias", func(ctx *gin.Context) {
+	router.GET("/:alias", func(ctx *gin.Context) {
 		ctx.ShouldBindUri(&shortener.OpenLinkStruct{})
 	}, shortener.OpenLink)
 
