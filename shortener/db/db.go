@@ -11,7 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var DB_CONNECTION_STRING = "mongodb://localhost:27017"
+var DB_CONNECTION_STRING = "mongodb+srv://2dal_free_db:NY1RyL2roXdzwDYm@cluster0.seevd4w.mongodb.net/?retryWrites=true&w=majority"
+
 var DB_NAME = "2dal"
 
 func GetConnection() error{
