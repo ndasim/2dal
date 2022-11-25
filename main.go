@@ -37,7 +37,7 @@ func NewBook(name string, pages int) *Book {
 		Pages: pages,
 	}
 }
-
+// gE#q?6a6-xCpTU
 func main() {
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn: "https://32109d4bacdc44b2bdf09093dc28ff2a@o1306780.ingest.sentry.io/4504068517199872",
@@ -84,7 +84,7 @@ func main() {
 		v.RegisterValidation("isUnique", db.IsUniqueValidator())
 	}
 
-	router.Run("localhost:8080")
+	router.Run("localhost:1881")
 
 	//mi := i.Uint64()
 	//fmt.Println(len(uniques))
