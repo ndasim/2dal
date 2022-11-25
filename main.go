@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"net/http"
 	"time"
 
 	"github.com/catinello/base62"
@@ -65,12 +66,17 @@ func main() {
 
 	router.Static("/static", "./static")
 	router.LoadHTMLGlob("static/forwarder.html")
+	router.LoadHTMLGlob("static/index.html")
 	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
 	router.GET("/api/qr", shortener.CreateQR)
 
 	router.GET("/:alias", func(ctx *gin.Context) {
 		ctx.ShouldBindUri(&shortener.OpenLinkStruct{})
 	}, shortener.OpenLink)
+
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "index.html", gin.H{})
+	})
 
 	// Register custom validators
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {

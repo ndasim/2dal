@@ -2,6 +2,7 @@ package models
 
 import (
 	"2dal/core"
+	"errors"
 	"time"
 
 	"github.com/catinello/base62"
@@ -19,7 +20,7 @@ type Link struct {
 	User             User
 }
 
-func (link *Link) Create(origin string, alias string, user *User) error{
+func (link *Link) Create(origin string, alias string, user *User) error {
 	// Make sure to pass the model by reference (to update the model's "updated_at", "created_at" and "id" fields by mgm).
 	collection := mgm.Coll(link)
 
@@ -34,10 +35,17 @@ func (link *Link) Create(origin string, alias string, user *User) error{
 	} else {
 		link.Alias = alias
 	}
-	
+
+	duration := time.Duration(time.Duration.Hours(1))
+	if user.Subscription == "BASIC" {
+		duration = time.Duration(time.Duration.Hours(1))
+	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "Buy me coffee" {
+		duration = time.Duration(time.Duration.Hours(24 * 365 * 10))
+	}
+
 	// Set timestamp of link
 	link.From_ts = time.Now().Format(time.RFC3339)
-	link.To_ts = time.Now().Add(time.Duration(time.Duration.Hours(1))).Format(time.RFC3339)
+	link.To_ts = time.Now().Add(duration).Format(time.RFC3339)
 
 	// Set origin of link
 	link.Origin_url = origin
@@ -56,23 +64,49 @@ func (link *Link) Create(origin string, alias string, user *User) error{
 	return nil
 }
 
-func (link *Link) FindLink(alias string) error{
+func (link *Link) FindLink(alias string) error {
 	model := mgm.Coll(link)
 
 	result := []Link{}
 
 	err := model.SimpleFind(&result, bson.D{{Key: "alias", Value: alias}})
-	if err != nil{
-		return err;
+	if err != nil {
+		return err
 	}
 
 	if len(result) > 1 {
 		sentry.CaptureMessage("alias: " + alias + " has returned more than one link!")
 	}
-	
+
 	link.Origin_url = result[0].Origin_url
 
-	return nil;
+	return nil
+}
+
+func (link *Link) FindOrigin(origin string) error {
+	model := mgm.Coll(link)
+
+	result := []Link{}
+
+	err := model.SimpleFind(&result, bson.D{{Key: "origin_url", Value: origin}})
+	if err != nil {
+		return err
+	}
+
+	if len(result) > 1 {
+		sentry.CaptureMessage("origin_url: " + origin + " has returned more than one link!")
+	} else if len(result) == 0 {
+		return errors.New("no data")
+	}
+
+	link.Origin_url = result[0].Origin_url
+	link.Alias = result[0].Alias
+	link.CreatedAt = result[0].CreatedAt
+	link.UpdatedAt = result[0].UpdatedAt
+	link.From_ts = result[0].From_ts
+	link.To_ts = result[0].To_ts
+
+	return nil
 }
 
 func Rhash(n int) string {

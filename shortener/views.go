@@ -10,6 +10,12 @@ import (
 	qrcode "github.com/skip2/go-qrcode"
 )
 
+type RapidAPIHeaders struct {
+	User         string `header:"X-RapidAPI-User" binding:"required"`
+	Subscription string `header:"X-RapidAPI-Subscription" binding:"required"`
+	Ip           string `header:"X-Forwarded-For" binding:"required"`
+}
+
 ////// CREATE LINK ///////
 
 type CreateLinkStruct struct {
@@ -18,22 +24,35 @@ type CreateLinkStruct struct {
 }
 
 func CreateLink(c *gin.Context) {
+	// Validate header
+	header := RapidAPIHeaders{}
+	err := c.ShouldBindHeader(&header)
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
 	// Validate form data
 	data := c.MustGet(gin.BindKey).(*CreateLinkStruct)
 
-	user := models.User{Username: "ndasim", Subscription: "sd"}
+	user := models.User{Username: header.User, Subscription: header.Subscription, IpAddress: header.Ip}
 
 	link := models.Link{}
-	err := link.Create(data.Url, data.Alias, &user)
 
-	if err != nil {
-		sentry.CaptureException(err)
-		c.AbortWithStatus(http.StatusServiceUnavailable)
+	// First look for the existing origin url on the db, resources are valueble
+	existErr := link.FindOrigin(data.Url)
+	if existErr != nil {
+		err = link.Create(data.Url, data.Alias, &user)
+
+		if err != nil {
+			sentry.CaptureException(err)
+			c.AbortWithStatus(http.StatusServiceUnavailable)
+		}
 	}
 
 	c.IndentedJSON(http.StatusOK, map[string]string{
 		"origin_url":  link.Origin_url,
-		"short_url":   link.Alias,
+		"short_url":   "2d.al/" + link.Alias,
 		"valid_until": link.To_ts,
 	})
 }
@@ -47,9 +66,9 @@ type OpenLinkStruct struct {
 func OpenLink(c *gin.Context) {
 	// Validate form data
 	data := OpenLinkStruct{}
-	if err := c.BindUri(&data); err != nil{
+	if err := c.BindUri(&data); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
-		return;
+		return
 	}
 
 	link := models.Link{}
@@ -58,13 +77,13 @@ func OpenLink(c *gin.Context) {
 	err := link.FindLink(data.Alias)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
-		return;
+		return
 	}
 
 	/// If not found
 	if link.Origin_url == "" {
 		c.AbortWithStatus(http.StatusNotFound)
-		return;
+		return
 	}
 
 	c.HTML(http.StatusOK, "forwarder.html", gin.H{
