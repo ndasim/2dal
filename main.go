@@ -67,7 +67,7 @@ func main() {
 
 	router.Static("/static", "./static")
 	router.LoadHTMLFiles("static/forwarder.html", "static/index.html", "static/expired.html")
-	router.POST("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
+	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
 	router.GET("/api/qr/:alias", shortener.CreateSvgQR)
 	//router.GET("/api/qr/png/:alias", shortener.CreatePngQR)
 

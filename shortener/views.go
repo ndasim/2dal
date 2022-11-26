@@ -26,8 +26,8 @@ type RapidAPIHeaders struct {
 ////// CREATE LINK ///////
 
 type CreateLinkStruct struct {
-	Url   string `json:"url" binding:"required,url,startswith=http,contains=://,max=255"`
-	Alias string `json:"alias" binding:"omitempty,max=15,isUnique=alias@link"`
+	Url   string `form:"url" binding:"required,url,startswith=http,contains=://,max=255"`
+	Alias string `form:"alias" binding:"omitempty,max=15,isUnique=alias@link"`
 }
 
 func CreateLink(c *gin.Context) {
