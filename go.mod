@@ -48,6 +48,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/olivere/elastic v6.2.37+incompatible
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
+	github.com/relvacode/iso8601 v1.1.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stvp/rollbar v0.5.1
 	github.com/ugorji/go/codec v1.2.7 // indirect

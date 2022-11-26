@@ -15,6 +15,7 @@ import (
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	pngqr "github.com/boombuler/barcode/qr"
+	"github.com/relvacode/iso8601"
 )
 
 type RapidAPIHeaders struct {
@@ -106,10 +107,8 @@ func OpenLink(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-
-	layout := "2006-01-02T15:04:05Z"
-	str := link.To_ts
-	to_ts, err := time.Parse(layout, str)
+	
+	to_ts, err := iso8601.ParseString(link.To_ts)
 	today := time.Now()
 
 	if err != nil {
