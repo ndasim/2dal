@@ -57,8 +57,8 @@ func (qs *QrSVG) WriteQrSVG(s *svg.SVG) error {
 // This takes an X and Y value and then adds four white "blocks"
 // to create the "quiet zone" around the QR Code.
 func (qs *QrSVG) SetStartPoint(x, y int) {
-	qs.startingX = x
-	qs.startingY = y
+	qs.startingX = x + qs.qrWidth / 2
+	qs.startingY = y + qs.qrWidth / 2
 }
 
 // StartQrSVG creates a start for writing an SVG file that
@@ -67,7 +67,7 @@ func (qs *QrSVG) SetStartPoint(x, y int) {
 // to the SVG. Otherwise use the regular svg.Start() method to start your
 // SVG file.
 func (qs *QrSVG) StartQrSVG(s *svg.SVG) {
-	width := (qs.qrWidth * qs.blockSize)
+	width := (qs.qrWidth * qs.blockSize) + qs.qrWidth
 	qs.SetStartPoint(0, 0)
 	s.Start(width, width)
 }
