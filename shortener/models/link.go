@@ -133,6 +133,7 @@ func (link *Link) FindOrigin(origin string) error {
 		return errors.New("no data")
 	}
 
+	link.ID = result[0].ID
 	link.Origin_url = result[0].Origin_url
 	link.Alias = result[0].Alias
 	link.CreatedAt = result[0].CreatedAt
