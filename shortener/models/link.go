@@ -39,7 +39,7 @@ func (link *Link) Create(origin string, alias string, user *User) error {
 	duration := time.Duration(time.Duration.Hours(1))
 	if user.Subscription == "BASIC" {
 		duration = time.Duration(time.Duration.Hours(1))
-	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "Buy me coffee" {
+	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "MEGA" || user.Subscription == "Buy me coffee" {
 		duration = time.Duration(time.Duration.Hours(24 * 365 * 10))
 	}
 
@@ -70,7 +70,7 @@ func (link *Link) Update(alias string, user *User) error {
 	duration := time.Hour * time.Duration(1)
 	if user.Subscription == "BASIC" {
 		duration = time.Hour * time.Duration(1)
-	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "Buy me coffee" {
+	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "MEGA" || user.Subscription == "Buy me coffee" {
 		duration = time.Hour * time.Duration(24*365*10)
 	}
 
