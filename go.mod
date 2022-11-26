@@ -5,6 +5,8 @@ go 1.18
 require github.com/gin-gonic/gin v1.8.1
 
 require (
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
+	github.com/boombuler/barcode v1.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8 // indirect
 	github.com/go-bongo/go-dotaccess v0.0.0-20190924013105-74ea4f4ca4eb // indirect
@@ -27,6 +29,7 @@ require (
 )
 
 require (
+	github.com/aaronarduino/goqrsvg v0.0.0-20220419053939-17e843f1dd40
 	github.com/catinello/base62 v0.0.0-20210103152244-29b605f01e9b
 	github.com/elastic/go-elasticsearch/v7 v7.17.1
 	github.com/getsentry/sentry-go v0.14.0

@@ -2,13 +2,19 @@ package shortener
 
 import (
 	"2dal/shortener/models"
+	"2dal/shortener/render"
+	"image/png"
 	"net/http"
 	"time"
 
+	svg "github.com/ajstarks/svgo"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 
-	qrcode "github.com/skip2/go-qrcode"
+	//qrcode "github.com/skip2/go-qrcode"
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
+	pngqr "github.com/boombuler/barcode/qr"
 )
 
 type RapidAPIHeaders struct {
@@ -20,8 +26,8 @@ type RapidAPIHeaders struct {
 ////// CREATE LINK ///////
 
 type CreateLinkStruct struct {
-	Url   string `form:"url" binding:"required,url,startswith=http,contains=://,max=255"`
-	Alias string `form:"alias" binding:"omitempty,max=15,isUnique=alias@link"`
+	Url   string `json:"url" binding:"required,url,startswith=http,contains=://,max=255"`
+	Alias string `json:"alias" binding:"omitempty,max=15,isUnique=alias@link"`
 }
 
 func CreateLink(c *gin.Context) {
@@ -56,7 +62,7 @@ func CreateLink(c *gin.Context) {
 			c.AbortWithStatus(http.StatusServiceUnavailable)
 		}
 	} else {
-		if data.Alias != "" && user.Username != link.User.Username{
+		if data.Alias != "" && user.Username != link.User.Username {
 			c.JSON(http.StatusUnauthorized, gin.H{"permission": "You can only override your short urls"})
 			return
 		} else {
@@ -122,10 +128,47 @@ func OpenLink(c *gin.Context) {
 	}
 }
 
-////// CREATE QR ///////
+// //// CREATE QR ///////
+type QRStruct struct {
+	Alias string `form:"alias" uri:"alias" binding:"required,max=15"`
+}
 
-func CreateQR(c *gin.Context) {
-	qrcode.WriteFile("https://example.org", qrcode.Medium, -50, "cached/qr.png")
+func CreateSvgQR(c *gin.Context) { // Validate form data
+	data := OpenLinkStruct{}
+	if err := c.BindUri(&data); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
-	c.File("cached/qr.png")
+	var w http.ResponseWriter = c.Writer
+	w.Header().Set("Content-Type", "image/svg+xml")
+	s := svg.New(w)
+
+	// Create the barcode
+	qrCode, _ := qr.Encode("2d.al/"+data.Alias, qr.M, qr.Auto)
+
+	// Write QR code to SVG
+	qs := render.NewQrSVG(qrCode, 20)
+	qs.StartQrSVG(s)
+	qs.WriteQrSVG(s)
+
+	s.End()
+	//qrcode.WriteFile("https://example.org", qrcode.Medium, -50, "cached/qr.png")
+
+	//c.File("cached/qr.png")
+}
+
+func CreatePngQR(c *gin.Context) {
+	data := OpenLinkStruct{}
+	if err := c.BindUri(&data); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var w http.ResponseWriter = c.Writer
+
+	qrCode, _ := pngqr.Encode(data.Alias, qr.M, qr.Auto)
+	qrCode, _ = barcode.Scale(qrCode, 512, 512)
+
+	png.Encode(w, qrCode)
 }
