@@ -68,14 +68,15 @@ func main() {
 	router.Static("/static", "./static")
 	router.LoadHTMLFiles("static/forwarder.html", "static/index.html", "static/expired.html")
 	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
-	
-	// SVG builder
-	router.GET("/qr/:alias", shortener.CreateSvgQR)
+
 	//router.GET("/api/qr/png/:alias", shortener.CreatePngQR)
 
 	router.GET("/:alias", func(ctx *gin.Context) {
 		ctx.ShouldBindUri(&shortener.OpenLinkStruct{})
 	}, shortener.OpenLink)
+
+	// SVG builder
+	router.GET("/:alias/qr", shortener.CreateSvgQR)
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "index.html", gin.H{})
