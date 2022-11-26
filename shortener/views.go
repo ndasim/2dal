@@ -74,6 +74,7 @@ func CreateLink(c *gin.Context) {
 		"origin_url":  link.Origin_url,
 		"short_url":   "2d.al/" + link.Alias,
 		"valid_until": link.To_ts,
+		"svg_qr": "2d.al/qr/" + link.Alias,
 	})
 }
 
@@ -134,14 +135,6 @@ type QRStruct struct {
 }
 
 func CreateSvgQR(c *gin.Context) { // Validate form data
-	// Validate header
-	header := RapidAPIHeaders{}
-	err := c.ShouldBindHeader(&header)
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
 	data := OpenLinkStruct{}
 	if err := c.BindUri(&data); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
