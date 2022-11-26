@@ -74,7 +74,7 @@ func CreateLink(c *gin.Context) {
 		"origin_url":  link.Origin_url,
 		"short_url":   "2d.al/" + link.Alias,
 		"valid_until": link.To_ts,
-		"svg_qr": "2d.al/qr/" + link.Alias,
+		"svg_qr": "2d.al/" + link.Alias + "/qr",
 	})
 }
 
