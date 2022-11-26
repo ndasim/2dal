@@ -3,6 +3,7 @@ package shortener
 import (
 	"2dal/shortener/models"
 	"net/http"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
@@ -39,7 +40,13 @@ func CreateLink(c *gin.Context) {
 
 	link := models.Link{}
 
-	// First look for the existing origin url on the db, resources are valueble
+	// Prevent BASIC users to create link with alias
+	if user.Subscription == "BASIC" && data.Alias != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"auth": "subscription level is not sufficient"})
+		return
+	}
+
+	// First look for the existing origin url on the db, resources are valuable
 	existErr := link.FindOrigin(data.Url)
 	if existErr != nil {
 		err = link.Create(data.Url, data.Alias, &user)
@@ -47,6 +54,13 @@ func CreateLink(c *gin.Context) {
 		if err != nil {
 			sentry.CaptureException(err)
 			c.AbortWithStatus(http.StatusServiceUnavailable)
+		}
+	} else {
+		if data.Alias != "" && user.Username != link.User.Username{
+			c.JSON(http.StatusUnauthorized, gin.H{"permission": "You can only override your short urls"})
+			return
+		} else {
+			link.Update(data.Alias, &user)
 		}
 	}
 
@@ -86,9 +100,26 @@ func OpenLink(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "forwarder.html", gin.H{
-		"url": link.Origin_url,
-	})
+	layout := "2006-01-02T15:04:05Z"
+	str := link.To_ts
+	to_ts, err := time.Parse(layout, str)
+	today := time.Now()
+
+	if err != nil {
+		sentry.CaptureException(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		panic(err)
+	}
+
+	if today.After(to_ts) {
+		c.HTML(http.StatusOK, "expired.html", gin.H{
+			"url": link.Origin_url,
+		})
+	} else {
+		c.HTML(http.StatusOK, "forwarder.html", gin.H{
+			"url": link.Origin_url,
+		})
+	}
 }
 
 ////// CREATE QR ///////

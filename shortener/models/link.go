@@ -64,6 +64,33 @@ func (link *Link) Create(origin string, alias string, user *User) error {
 	return nil
 }
 
+func (link *Link) Update(alias string, user *User) error {
+	collection := mgm.Coll(link)
+
+	duration := time.Hour * time.Duration(1)
+	if user.Subscription == "BASIC" {
+		duration = time.Hour * time.Duration(1)
+	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "Buy me coffee" {
+		duration = time.Hour * time.Duration(24*365*10)
+	}
+
+	print(duration)
+
+	// Set timestamp of link
+	link.From_ts = time.Now().Format(time.RFC3339)
+	link.To_ts = time.Now().Add(duration).Format(time.RFC3339)
+
+	if alias != "" {
+		link.Alias = alias
+	}
+
+	if err := collection.Update(link); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (link *Link) FindLink(alias string) error {
 	model := mgm.Coll(link)
 
@@ -76,9 +103,16 @@ func (link *Link) FindLink(alias string) error {
 
 	if len(result) > 1 {
 		sentry.CaptureMessage("alias: " + alias + " has returned more than one link!")
+	} else if len(result) == 0 {
+		return errors.New("not found")
 	}
 
 	link.Origin_url = result[0].Origin_url
+	link.Alias = result[0].Alias
+	link.CreatedAt = result[0].CreatedAt
+	link.From_ts = result[0].From_ts
+	link.To_ts = result[0].To_ts
+	link.User = result[0].User
 
 	return nil
 }
@@ -105,6 +139,7 @@ func (link *Link) FindOrigin(origin string) error {
 	link.UpdatedAt = result[0].UpdatedAt
 	link.From_ts = result[0].From_ts
 	link.To_ts = result[0].To_ts
+	link.User = result[0].User
 
 	return nil
 }

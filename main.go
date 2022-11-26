@@ -37,6 +37,7 @@ func NewBook(name string, pages int) *Book {
 		Pages: pages,
 	}
 }
+
 // gE#q?6a6-xCpTU
 func main() {
 	err := sentry.Init(sentry.ClientOptions{
@@ -65,9 +66,8 @@ func main() {
 	router.Use(gin.Recovery())
 
 	router.Static("/static", "./static")
-	router.LoadHTMLGlob("static/forwarder.html")
-	router.LoadHTMLGlob("static/index.html")
-	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
+	router.LoadHTMLFiles("static/forwarder.html", "static/index.html", "static/expired.html")
+	router.POST("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
 	router.GET("/api/qr", shortener.CreateQR)
 
 	router.GET("/:alias", func(ctx *gin.Context) {
