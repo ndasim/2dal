@@ -134,6 +134,14 @@ type QRStruct struct {
 }
 
 func CreateSvgQR(c *gin.Context) { // Validate form data
+	// Validate header
+	header := RapidAPIHeaders{}
+	err := c.ShouldBindHeader(&header)
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
 	data := OpenLinkStruct{}
 	if err := c.BindUri(&data); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -159,6 +167,14 @@ func CreateSvgQR(c *gin.Context) { // Validate form data
 }
 
 func CreatePngQR(c *gin.Context) {
+	// Validate header
+	header := RapidAPIHeaders{}
+	err := c.ShouldBindHeader(&header)
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
 	data := OpenLinkStruct{}
 	if err := c.BindUri(&data); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
