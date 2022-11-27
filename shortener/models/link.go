@@ -1,7 +1,6 @@
 package models
 
 import (
-	"2dal/core"
 	"errors"
 	"time"
 
@@ -36,11 +35,11 @@ func (link *Link) Create(origin string, alias string, user *User) error {
 		link.Alias = alias
 	}
 
-	duration := time.Duration(time.Duration.Hours(1))
+	duration := time.Hour * time.Duration(24)
 	if user.Subscription == "BASIC" {
-		duration = time.Duration(time.Duration.Hours(1))
+		duration = time.Hour * time.Duration(24)
 	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "MEGA" || user.Subscription == "Buy me coffee" {
-		duration = time.Duration(time.Duration.Hours(24 * 365 * 10))
+		duration = time.Hour * time.Duration(24*365*10)
 	}
 
 	// Set timestamp of link
@@ -51,11 +50,11 @@ func (link *Link) Create(origin string, alias string, user *User) error {
 	link.Origin_url = origin
 	link.User = *user
 
-	print(time.Now().UnixMicro())
-	print("\n")
-	print(int(time.Now().UnixNano() - core.StartTime))
-	print("\n")
-	print(base62.Encode(int(time.Now().UnixNano() - core.StartTime)))
+	//print(time.Now().UnixMicro())
+	//print("\n")
+	//print(int(time.Now().UnixNano() - core.StartTime))
+	//print("\n")
+	//print(base62.Encode(int(time.Now().UnixNano() - core.StartTime)))
 
 	if err := collection.Create(link); err != nil {
 		return err
@@ -67,9 +66,9 @@ func (link *Link) Create(origin string, alias string, user *User) error {
 func (link *Link) Update(alias string, user *User) error {
 	collection := mgm.Coll(link)
 
-	duration := time.Hour * time.Duration(1)
+	duration := time.Hour * time.Duration(24)
 	if user.Subscription == "BASIC" {
-		duration = time.Hour * time.Duration(1)
+		duration = time.Hour * time.Duration(24)
 	} else if user.Subscription == "PRO" || user.Subscription == "ULTRA" || user.Subscription == "MEGA" || user.Subscription == "Buy me coffee" {
 		duration = time.Hour * time.Duration(24*365*10)
 	}
