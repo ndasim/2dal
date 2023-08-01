@@ -88,7 +88,7 @@ func main() {
 		v.RegisterValidation("isUnique", db.IsUniqueValidator())
 	}
 
-	router.Run("localhost:1881")
+	router.Run(":80")
 
 	//mi := i.Uint64()
 	//fmt.Println(len(uniques))
