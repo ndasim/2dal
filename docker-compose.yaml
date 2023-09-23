@@ -1,6 +1,7 @@
 version: "3"
 services:
-  go-web-app:
+  app:
+    container_name: 2dal
     restart: always
     build:
       dockerfile: Dockerfile
