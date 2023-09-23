@@ -75,7 +75,8 @@ func CreateLink(c *gin.Context) {
 		"origin_url":  link.Origin_url,
 		"short_url":   "2d.al/" + link.Alias,
 		"valid_until": link.To_ts,
-		"svg_qr": "2d.al/" + link.Alias + "/qr",
+		"svg_qr":      "2d.al/" + link.Alias + "/qr",
+		"version":     "1.0.0",
 	})
 }
 
@@ -107,7 +108,7 @@ func OpenLink(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	
+
 	to_ts, err := iso8601.ParseString(link.To_ts)
 	today := time.Now()
 

@@ -97,13 +97,17 @@ func main() {
 	//fmt.Println(len(uniques))
 	//fmt.Println(len(uniques))
 
-	defer func() {
-		err := recover()
-
-		if err != nil {
-			sentry.CurrentHub().Recover(err)
-			sentry.Flush(time.Second * 5)
-		}
+	func() {
+		defer func() {
+			err := recover()
+	
+			if err != nil {
+				sentry.CurrentHub().Recover(err)
+				sentry.Flush(time.Second * 5)
+			}
+		}()
+	
+		// do all of the scary things here
 	}()
 }
 
