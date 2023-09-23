@@ -8,6 +8,9 @@ jobs:
     name: Build Image
     runs-on: ubuntu-latest
     steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -43,7 +46,7 @@ jobs:
             aws configure set aws_secret_access_key > echo $AWS_SECRET_ACCESS_KEY
             aws configure set default.region > echo $AWS_REGION
             aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 163166970182.dkr.ecr.eu-central-1.amazonaws.com
-            
+
             echo "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
             # Pull the image
@@ -51,7 +54,7 @@ jobs:
 
             # Stop and remove the running container
             sudo docker stop $(sudo docker ps -q --filter ancestor=163166970182.dkr.ecr.eu-central-1.amazonaws.com/2dal_container:0b22db7e7e11334a8e010f5d4cfb5bba6d923e8c)
-            
+
             # Run the new image
             sudo docker compose -f 2dal-compose.yaml up -d
           host: ${{ secrets.PUB_IP }}
