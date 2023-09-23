@@ -19,6 +19,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: 2dal_container
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         env:
@@ -36,9 +45,15 @@ jobs:
             aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 163166970182.dkr.ecr.eu-central-1.amazonaws.com
             
             echo "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-            echo "noliy"
-            sudo docker rm -f `sudo docker ps -q` 
-            sudo docker run -d -p 80:80 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+            # Pull the image
+            sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+            # Stop and remove the running container
+            sudo docker stop $(sudo docker ps -q --filter ancestor=163166970182.dkr.ecr.eu-central-1.amazonaws.com/2dal_container:0b22db7e7e11334a8e010f5d4cfb5bba6d923e8c)
+            
+            # Run the new image
+            sudo docker compose -f 2dal-compose.yaml up -d
           host: ${{ secrets.PUB_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}

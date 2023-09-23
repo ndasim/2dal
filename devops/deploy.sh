@@ -20,3 +20,8 @@
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+
+
+
+sudo docker run -d -p 80:80 163166970182.dkr.ecr.eu-central-1.amazonaws.com/2dal_container:0b22db7e7e11334a8e010f5d4cfb5bba6d923e8c

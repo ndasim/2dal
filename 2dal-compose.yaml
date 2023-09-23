@@ -1,0 +1,9 @@
+version: "3"
+services:
+  2dal_app:
+    container_name: 2dal_container
+    restart: always
+    image: 163166970182.dkr.ecr.eu-central-1.amazonaws.com/2dal_container:latest
+    environment:
+      - VIRTUAL_HOST=2d.al
+      - LETSENCRYPT_HOST=2d.al
