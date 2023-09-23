@@ -53,7 +53,7 @@ jobs:
             sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
             # Stop and remove the running container
-            sudo docker stop $(sudo docker ps -q --filter ancestor=163166970182.dkr.ecr.eu-central-1.amazonaws.com/2dal_container:0b22db7e7e11334a8e010f5d4cfb5bba6d923e8c)
+            sudo docker stop $(sudo docker ps -q --filter name=2dal_container)
 
             # Run the new image
             sudo docker compose -f 2dal-compose.yaml up -d

@@ -6,6 +6,7 @@ import (
 	"2dal/shortener/db"
 	"2dal/shortener/middleware"
 	"2dal/shortener/models"
+	"context"
 	"fmt"
 	"log"
 	"math/big"
@@ -23,6 +24,9 @@ import (
 
 	"github.com/getsentry/sentry-go"
 )
+
+type contextKey int
+const SomeContextKey = contextKey(1)
 
 type Book struct {
 	// DefaultModel adds _id, created_at and updated_at fields to the Model
@@ -42,16 +46,22 @@ func NewBook(name string, pages int) *Book {
 func main() {
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn: "https://32109d4bacdc44b2bdf09093dc28ff2a@o1306780.ingest.sentry.io/4504068517199872",
-		// Set TracesSampleRate to 1.0 to capture 100%
-		// of transactions for performance monitoring.
-		// We recommend adjusting this value in production,
-		Environment:      "debug",
-		Debug:            true,
+		EnableTracing: true,
+		// We recommend adjusting these values in production:
 		TracesSampleRate: 1.0,
+		// The sampling rate for profiling is relative to TracesSampleRate:
+		ProfilesSampleRate: 1.0,
 	})
 	if err != nil {
 		log.Fatalf("sentry.Init: %s", err)
 	}
+
+	ctx := context.WithValue(context.Background(), SomeContextKey, "some details about your panic")
+
+	func() {
+		defer sentry.RecoverWithContext(ctx)
+		// do all of the scary things here
+	}()
 
 	err = db.GetConnection()
 
