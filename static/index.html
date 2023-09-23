@@ -1,55 +1,223 @@
+<!DOCTYPE html>
 <html>
-<header>
-    <style>
-        .home-container {
-            width: 100%;
-            display: flex;
-            overflow: auto;
-            min-height: 100vh;
-            align-items: center;
-            flex-direction: column;
-        }
+  <head>
+    <title>Parcel Sandbox</title>
+    <meta charset="UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/englishextra/qrjs2@latest/js/qrjs2.min.js
 
-        .home-container1 {
-            width: 648px;
-            height: 291px;
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-            justify-content: center;
-        }
+    "></script>
 
-        .home-text {
-            align-self: center;
-            font-family: Merriweather;
-        }
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
 
-        .home-text1 {
-            margin-top: var(--dl-space-space-oneandhalfunits);
-            text-align: center;
-            font-family: Merriweather;
-        }
-    </style>
-</header>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5104160120481980"
+     crossorigin="anonymous"></script>
 
-<body>
-    <div>
-        <link href="./home.css" rel="stylesheet" />
-        <div class="home-container">
-            <div class="home-container1">
-                <h1 class="home-text">2d.al</h1>
-                <span class="home-text1">
-                    <span>This web application still under construction.</span>
-                    <br />
-                    <br />
-                    <span>
-                        URL shortener service only available for rapidapi.com users
-                    </span>
-                    <br />
-                </span>
-            </div>
-        </div>
+    <script>
+      console.log("I'm");
+      $(document).ready(function () {
+        console.log("ready!");
+
+        $("#loading").hide();
+        $("#copy").hide();
+
+        $("#copy").click(function () {
+          $("#longUrl").select();
+          document.execCommand("copy");
+        });
+
+        $("#shorten").click(function () {
+          $("#loading").show();
+
+          // Disable input and button
+          $("#longUrl").prop("disabled", true);
+          $("#shorten").prop("disabled", true);
+
+          $.get({
+            url: "http://localhost/api/create/",
+            data: {
+              url: "https://" + $("#longUrl").val(),
+            },
+            headers: {
+              "X-RapidAPI-User": "web",
+              "X-RapidAPI-Subscription": "PRO",
+              "X-Forwarded-For": "23",
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+              $("#loading").hide();
+              console.log(data);
+
+              // Show shortened url
+              $("#longUrl").val(data.short_url);
+
+              // Show copy button
+              $("#copy").show();
+              $("#shorten").hide();
+              
+              // Show alert
+              $("#successtMessage").text("Shortened!");
+              $("#success").addClass("show");
+
+              // Disappear alert after 3 seconds
+              setTimeout(function () {
+                $("#success").removeClass("show");
+              }, 3000);
+
+              // Enable input and button
+              $("#longUrl").prop("disabled", false);
+              $("#shorten").prop("disabled", false);
+
+              $("#longUrl").select();
+              document.execCommand("copy");
+              //generateQR(data.short_url);
+            },
+            error: function (xhr, status, error) {
+              $("#loading").hide();
+
+              // Show alert
+              $("#alertMessage").text(xhr.responseText ?? "Something went wrong!");
+              $("#alert").addClass("show");
+
+              // Disappear alert after 3 seconds
+              setTimeout(function () {
+                $("#alert").removeClass("show");
+              }, 3000);
+
+              // Enable input and button
+              $("#longUrl").prop("disabled", false);
+              $("#shorten").prop("disabled", false);
+            },
+          });
+        });
+
+        $("#longUrl").keypress(function (t) {
+          // Show shorten button
+          $("#shorten").show();
+          $("#copy").hide();
+        });
+      });
+
+      function generateQR(text) {
+        var qr = qrcode(0, "L");
+        qr.addData(text);
+        qr.make();
+        document.getElementById("qr").innerHTML = qr.createImgTag();
+      }
+
+      function generateHtmlQR(){
+          var qrData = QRCode.generate(t.target.value);
+
+          var qrContainer = $("#qr")[0];
+          qrContainer.innerHTML = "";
+
+          var relativeCellWidth = (100 / qrData.length);
+
+          for (var y = 0; y < qrData.length; y++) {
+            for (var x = 0; x < qrData[y].length; x++) {
+              var cell = document.createElement("div");
+              cell.style.width = relativeCellWidth + "%";
+              cell.style.height = relativeCellWidth + "%";
+              cell.style.position = "absolute";
+              cell.style.left = x * relativeCellWidth + "%";
+              cell.style.top = y * relativeCellWidth + "%";
+              cell.style.backgroundColor = qrData[x][y] === 1 ? "black" : "white";
+              qrContainer.appendChild(cell);
+            }
+          }
+      }
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler-flags.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler-payments.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler-vendors.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="position-fixed top-0 end-0 p-3">
+      <div id="alert" class="alert alert-danger alert-dismissible fade" role="alert">
+        <strong id="alertMessage"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
     </div>
-</body>
 
+    <div class="position-fixed top-0 end-0 p-3">
+      <div id="success" class="alert alert-success alert-dismissible fade" role="alert">
+        <strong id="successtMessage"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="container">
+        <div class="my-5">
+          <h1 class="text-center">2d.al, a handy url shortener</h1>
+        </div>
+        <div class="d-flex flex-column justify-content-center">
+          <div class="row align-items-center">
+            <div class="col-12">
+              <div class="input-group">
+                <span class="input-group-text">
+                  https://
+                </span>
+                <input
+                  id="longUrl"
+                  type="url"
+                  class="form-control"
+                  style="height: 50px;"
+                  name="example-text-input"
+                  placeholder="Type long url"
+                />
+                <span id="loading" class="input-group-text">
+                  <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                </span>
+                <button class="btn" type="button" id="shorten">Lets Shorten!</button>
+                <button class="btn" type="button" id="copy">Copy!</button>
+              </div>
+            </div>
+          </div>
+          <div class="row my-2">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body">
+                  <p>History</p>
+                  <div class="empty">
+                    <div class="empty-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <circle cx="12" cy="12" r="9" />
+                        <line x1="9" y1="10" x2="9.01" y2="10" />
+                        <line x1="15" y1="10" x2="15.01" y2="10" />
+                        <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
+                      </svg>
+                    </div>
+                    <p class="empty-title">No history record found</p>
+                    <p class="empty-subtitle text-secondary">
+                      Try shortening some urls!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

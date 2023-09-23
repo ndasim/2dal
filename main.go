@@ -62,11 +62,13 @@ func main() {
 	router := gin.Default()
 
 	router.Use(middleware.Errors())
+	router.Use(middleware.Options)
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
 	router.Static("/static", "./static")
 	router.LoadHTMLFiles("static/forwarder.html", "static/index.html", "static/expired.html")
+
 	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
 
 	//router.GET("/api/qr/png/:alias", shortener.CreatePngQR)

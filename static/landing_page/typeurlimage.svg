@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="79.228531mm"
+   height="47.767818mm"
+   viewBox="0 0 79.228531 47.767818"
+   version="1.1"
+   id="svg1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm" />
+  <defs
+     id="defs1">
+    <marker
+       style="overflow:visible"
+       id="Sketch"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Sketched arrow"
+       markerWidth="2"
+       markerHeight="2"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         style="fill:none;stroke:context-stroke;stroke-width:0.4;stroke-linecap:round"
+         d="m -4.5421538,-3.2452189 3.83900644,2.60235235 0.56348102,0.59255887 L -2.4921466,1.1808717 -4.4106004,2.139946 -4.5795251,2.8245356 -4.703996,3.0734773 -4.3128019,2.6822832 -3.9749524,2.3088707 0.66603196,-0.12720162 0.02589622,-0.32279868 -1.7613224,-0.60366199 -3.580874,-2.0472634 -4.3186004,-2.392437 l -1.2937699,-0.2549423 2.1825172,0.042166 0.6996091,1.0554873 1.4406512,0.1145833 1.20879971,0.91674665 1.53333299,0.47138389 -1.85995289,1.23785256 -2.03832621,0.9224332 -1.5469949,0.9779853"
+         sodipodi:nodetypes="ccc"
+         id="path9" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-48.247312,-34.147323)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.367;stroke-miterlimit:3.9;stroke-dasharray:1.46801, 1.46801;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Sketch)"
+       d="m 83.84855,70.66543 c 0,0 34.03853,-7.319274 26.20314,-27.066722 -2.71667,-6.846791 -8.01443,-6.320249 -12.366939,-0.61808 -4.352507,5.702168 -0.115746,13.525557 2.707249,14.559801 15.11337,5.536994 23.67496,-13.036166 25.18781,-21.993512"
+       id="path1"
+       sodipodi:nodetypes="csssc"
+       inkscape:export-filename="path1.svg"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05556px;font-family:'Bradley Hand';-inkscape-font-specification:'Bradley Hand';fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       x="59.104305"
+       y="61.882656"
+       id="text1"
+       transform="rotate(9.364585)"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05556px;font-family:Skia;-inkscape-font-specification:Skia;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none"
+         x="59.104305"
+         y="61.882656">Type your longest URL</tspan></text>
+  </g>
+</svg>
