@@ -7,13 +7,14 @@ import (
 	"2dal/shortener/middleware"
 	"2dal/shortener/models"
 	"context"
+	"embed"
 	"fmt"
 	"log"
 	"math/big"
-	"net/http"
 	"time"
 
 	"github.com/catinello/base62"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -26,26 +27,16 @@ import (
 )
 
 type contextKey int
+
 const SomeContextKey = contextKey(1)
 
-type Book struct {
-	// DefaultModel adds _id, created_at and updated_at fields to the Model
-	mgm.DefaultModel `bson:",inline"`
-	Name             string `json:"name" bson:"name"`
-	Pages            int    `json:"pages" bson:"pages"`
-}
-
-func NewBook(name string, pages int) *Book {
-	return &Book{
-		Name:  name,
-		Pages: pages,
-	}
-}
+//go:embed static
+var staticFiles embed.FS
 
 // gE#q?6a6-xCpTU
 func main() {
 	err := sentry.Init(sentry.ClientOptions{
-		Dsn: "https://32109d4bacdc44b2bdf09093dc28ff2a@o1306780.ingest.sentry.io/4504068517199872",
+		Dsn:           "https://32109d4bacdc44b2bdf09093dc28ff2a@o1306780.ingest.sentry.io/4504068517199872",
 		EnableTracing: true,
 		// We recommend adjusting these values in production:
 		TracesSampleRate: 1.0,
@@ -76,9 +67,6 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	router.Static("/static", "./static")
-	router.LoadHTMLFiles("static/forwarder.html", "static/index.html", "static/expired.html")
-
 	router.GET("/api/create", gin.Bind(shortener.CreateLinkStruct{}), shortener.CreateLink)
 
 	//router.GET("/api/qr/png/:alias", shortener.CreatePngQR)
@@ -90,9 +78,9 @@ func main() {
 	// SVG builder
 	router.GET("/:alias/qr", shortener.CreateSvgQR)
 
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "index.html", gin.H{})
-	})
+	fs := core.EmbedFolder(staticFiles, "static", true)
+
+	router.Use(static.Serve("/", fs))
 
 	// Register custom validators
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -110,13 +98,13 @@ func main() {
 	func() {
 		defer func() {
 			err := recover()
-	
+
 			if err != nil {
 				sentry.CurrentHub().Recover(err)
 				sentry.Flush(time.Second * 5)
 			}
 		}()
-	
+
 		// do all of the scary things here
 	}()
 }
