@@ -123,7 +123,7 @@
           $.get({
             url: baseUrl + "/api/create",
             data: {
-              url: "https://" + $("#longUrl").val().replace("http://").replace("https://"),
+              url: "https://" + $("#longUrl").val().replace("http://", "").replace("https://", ""),
             },
             headers: {
               "X-RapidAPI-User": "web",
@@ -249,6 +249,7 @@
           const a1 = document.createElement('a');
           a1.href = "https://" + data.shortUrl;
           a1.textContent = data.shortUrl;
+          a1.target = "_blank";
           td1.appendChild(a1);
 
           // Create a cell for the long URL with a clickable link
@@ -256,6 +257,7 @@
           const a2 = document.createElement('a');
           a2.href = data.longUrl;
           a2.textContent = data.longUrl;
+          a2.target = "_blank";
           td2.appendChild(a2);
 
           // Create a cell for the date
