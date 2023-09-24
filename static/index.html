@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Parcel Sandbox</title>
+    <title>2d.al, Your url shortener</title>
     <meta charset="UTF-8" />
     <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/englishextra/qrjs2@latest/js/qrjs2.min.js
@@ -74,6 +74,8 @@
           document.execCommand("copy");
         });
 
+
+
         $("#shorten").click(function () {
           const longUrl = $("#longUrl").val();
           let anyError = false;
@@ -121,7 +123,7 @@
           $.get({
             url: baseUrl + "/api/create",
             data: {
-              url: "https://" + $("#longUrl").val(),
+              url: "https://" + $("#longUrl").val().replace("http://").replace("https://"),
             },
             headers: {
               "X-RapidAPI-User": "web",

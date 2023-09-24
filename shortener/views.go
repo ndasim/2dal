@@ -5,6 +5,7 @@ import (
 	"2dal/shortener/render"
 	"image/png"
 	"net/http"
+	"strings"
 	"time"
 
 	svg "github.com/ajstarks/svgo"
@@ -123,9 +124,25 @@ func OpenLink(c *gin.Context) {
 			"url": link.Origin_url,
 		})
 	} else {
-		c.HTML(http.StatusOK, "forwarder.html", gin.H{
-			"url": link.Origin_url,
-		})
+		//Do what you need to get the cached html
+		forwardHtml := `<!DOCTYPE html>
+		<html>
+		<head>
+			<script>
+				window.location.href = "{{ .url }}";
+			</script>
+		</head>
+		<body>
+			<p>Unshorting to <a href="{{ .url }}">{{ .url }}</a>.</p>
+		</body>
+		</html>`
+
+		forwardHtml = strings.ReplaceAll(forwardHtml, "{{ .url }}", link.Origin_url)
+
+		//Write your 200 header status (or other status codes, but only WriteHeader once)
+		c.Writer.WriteHeader(http.StatusOK)
+		//Convert your cached html string to byte array
+		c.Writer.Write([]byte(forwardHtml))
 	}
 }
 
