@@ -1,10 +1,11 @@
 package core
 
-
 import (
 	"embed"
 	"io/fs"
 	"net/http"
+	"strings"
+
 	"github.com/gin-contrib/static"
 )
 
@@ -14,7 +15,7 @@ type embedFileSystem struct {
 }
 
 func (e embedFileSystem) Exists(prefix string, path string) bool {
-	f, err := e.Open(path)
+	f, err := e.Open(strings.Replace(path, prefix, "", 1))
 	if err != nil {
 		return false
 	}

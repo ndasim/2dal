@@ -9,12 +9,13 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"math/big"
+	"net/http"
 	"time"
 
 	"github.com/catinello/base62"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -32,6 +33,16 @@ const SomeContextKey = contextKey(1)
 
 //go:embed static
 var staticFiles embed.FS
+
+func mustFS() http.FileSystem {
+	sub, err := fs.Sub(staticFiles, "static")
+
+	if err != nil {
+		panic(err)
+	}
+
+	return http.FS(sub)
+}
 
 // gE#q?6a6-xCpTU
 func main() {
@@ -79,8 +90,13 @@ func main() {
 	router.GET("/:alias/qr", shortener.CreateSvgQR)
 
 	fs := core.EmbedFolder(staticFiles, "static", true)
+	//router.Use(static.Serve("/", fs))
 
-	router.Use(static.Serve("/", fs))
+	router.StaticFS("/static/", mustFS())
+
+	router.NoRoute(func(c *gin.Context) {
+		c.FileFromFS("/", fs)
+	})
 
 	// Register custom validators
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {

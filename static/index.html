@@ -10,6 +10,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.156.1/three.min.js"></script>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5104160120481980"
      crossorigin="anonymous"></script>
@@ -20,47 +21,10 @@
       }
     </style>
 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto Sans">
+    
+
     <script>
-      console.log("I'm");
-      
-      /*
-       * A function for saving shorted urls to local storage
-       * the storage will hold shortUrl, longUrl, and date
-       * the storage will be used to show history
-      */
-      function saveToLocalStorage(shortUrl, longUrl) {
-        const date = new Date().toLocaleString();
-        const data = { shortUrl, longUrl, date };
-        const history = JSON.parse(localStorage.getItem('history')) || [];
-        history.push(data);
-        localStorage.setItem('history', JSON.stringify(history));
-      }
-
-      function getHistoryFromLocalStorage() {
-        const history = JSON.parse(localStorage.getItem('history')) || [];
-        return history;
-      }
-
-      function deleteFromLocalStorage(shortUrl) {
-        const history = JSON.parse(localStorage.getItem('history')) || [];
-        const updatedHistory = history.filter(data => data.shortUrl !== shortUrl);
-        localStorage.setItem('history', JSON.stringify(updatedHistory));
-      }
-
-      function refreshHistoryArea() {
-        const history = getHistoryFromLocalStorage();
-
-        if(history.length > 0){
-          $(".empty").hide();
-          $("#history-area").show();
-          buildHistoryList(history);
-        }
-        else{
-          $(".empty").show();
-          $("#history-area").hide();
-        }
-      }
-
       $(document).ready(function () {
         console.log("ready!");
 
@@ -70,11 +34,8 @@
         $("#copy").hide();
 
         $("#copy").click(function () {
-          $("#longUrl").select();
-          document.execCommand("copy");
+          copyToClipboard($("#longUrl").val());
         });
-
-
 
         $("#shorten").click(function () {
           const longUrl = $("#longUrl").val();
@@ -82,7 +43,7 @@
 
           if (longUrl === "") {
             showError("Please enter a URL!");
-          } else if (!longUrl.match(/^(https?:\/\/)?[a-zA-Z0-9]+\.[a-zA-Z0-9]+[a-zA-Z0-9./#?&=-]*$/)) {
+          } else if (!longUrl.match(/^(https?:\/\/)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/)) {
             showError("This URL is not valid!");
           } else if (!longUrl.includes(".")) {
             showError("This URL is not valid!");
@@ -144,7 +105,7 @@
               $("#shorten").hide();
               
               // Show alert
-              $("#successtMessage").text("Shortened!");
+              $("#successtMessage").text("Shortened & Copied!");
               $("#success").addClass("show");
 
               // Disappear alert after 3 seconds
@@ -208,11 +169,72 @@
         });
       });
 
+            
+      /*
+       * A function for saving shorted urls to local storage
+       * the storage will hold shortUrl, longUrl, and date
+       * the storage will be used to show history
+      */
+      function saveToLocalStorage(shortUrl, longUrl) {
+        // If shortUrl already exists in history, don't add it again
+        const history = getHistoryFromLocalStorage() || [];
+        if(history.find(data => data.shortUrl === shortUrl)){
+          return;
+        }
+
+        const date = new Date().toLocaleString();
+        const data = { shortUrl, longUrl, date };
+
+        // Add to local storage to first index
+        history.unshift(data);
+        localStorage.setItem('history', JSON.stringify(history));
+
+        refreshHistoryArea();
+      }
+
+      function getHistoryFromLocalStorage() {
+        const history = JSON.parse(localStorage.getItem('history')) || [];
+        return history;
+      }
+
+      function deleteFromLocalStorage(shortUrl) {
+        const history = JSON.parse(localStorage.getItem('history')) || [];
+        const updatedHistory = history.filter(data => data.shortUrl !== shortUrl);
+        localStorage.setItem('history', JSON.stringify(updatedHistory));
+      }
+
+      function refreshHistoryArea() {
+        const history = getHistoryFromLocalStorage();
+
+        if(history.length > 0){
+          $(".empty").hide();
+          $("#history-area").show();
+          buildHistoryList(history);
+        }
+        else{
+          $(".empty").show();
+          $("#history-area").hide();
+        }
+      }
+
+      function copyToClipboard(text) {
+        $("#longUrl").select();
+        document.execCommand("copy");
+
+        // Show alert
+        $("#successtMessage").text("Copied!");
+        $("#success").addClass("show");
+
+        // Disappear alert after 3 seconds
+        setTimeout(function () {
+          $("#success").removeClass("show");
+        }, 3000);
+      }
+
       function generateQR(text){
         document.getElementById("qr").innerHTML = "";
         document.getElementById("qr").appendChild(QRCode.generateSVG(text));
       }
-
 
       function generateHtmlQR(){
           var qrData = QRCode.generate(t.target.value);
@@ -259,6 +281,7 @@
           a2.textContent = data.longUrl;
           a2.target = "_blank";
           td2.appendChild(a2);
+          td2.style.wordBreak = 'break-word';
 
           // Create a cell for the date
           const td3 = document.createElement('td');
@@ -295,8 +318,17 @@
             $("#qrModal").modal('show');
           });
 
+          // Add show QR button for short url, will show QR code in a modal
+          const copyBtn = document.createElement('button');
+          copyBtn.classList.add('btn', 'btn-ghost-green', 'm-1', 'p-1');
+          copyBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg>';
+          copyBtn.addEventListener('click', () => {
+            copyToClipboard($("#longUrl").val());
+          });
+
           td4.appendChild(removeBtn);
           td4.appendChild(qrBtn);
+          td4.appendChild(copyBtn);
 
           // Add all cells to the row and add the row to the table body
           tr.appendChild(td1);
@@ -352,9 +384,24 @@
 
     <div class="page">
       <div class="container">
-        <div class="my-5">
-          <h1 class="text-center">2d.al, a handy url shortener</h1>
+        <div class="mt-5" style='font-size: 2.5rem; font-weight: 700;'>
+          2d.al
         </div>
+        <div class="mb-3" style='font-size: 1.5rem; font-weight: 500; font-family: "Noto Sans", sans-serif'>
+          <span
+            class="txt-rotate"
+            data-period="2000"
+            data-rotate='[ "Elevate your links with our URL shortener.",
+            "Shorten URLs, boost engagement!",
+            "Link shortening made simple.",
+            "Cut the clutter with shortened URLs.",
+            "Make your links snappy and shareable!",
+            "The secret to concise, compelling links.",
+            "URLs made short, messages made strong.",
+            "Shorten URLs, lengthen impact!",
+            "Create sleek, memorable links.",
+            "Harness the power of brief URLs." ]'></span>
+          </div>
         <div class="d-flex flex-column justify-content-center">
           <div class="row align-items-center">
             <div class="col-12">
@@ -399,7 +446,7 @@
                   </div>
                   <div id="history-area">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table" style="max-width: 100%;">
                           <thead>
                             <tr>
                               <th>Short URL</th>
@@ -421,5 +468,65 @@
         </div>
       </div>
     </div>
+
+    <script src="static/back-anim.js"></script>
+    <script>
+      var TxtRotate = function(el, toRotate, period) {
+        this.toRotate = toRotate;
+        this.el = el;
+        this.loopNum = 0;
+        this.period = parseInt(period, 10) || 2000;
+        this.txt = '';
+        this.tick();
+        this.isDeleting = false;
+      };
+      
+      TxtRotate.prototype.tick = function() {
+        var i = this.loopNum % this.toRotate.length;
+        var fullTxt = this.toRotate[i];
+      
+        if (this.isDeleting) {
+          this.txt = fullTxt.substring(0, this.txt.length - 1);
+        } else {
+          this.txt = fullTxt.substring(0, this.txt.length + 1);
+        }
+      
+        this.el.innerHTML = '<span class="wrap">'+this.txt+'</span>';
+      
+        var that = this;
+        var delta = 100 - Math.random() * 50;
+      
+        if (this.isDeleting) { delta /= 2; }
+      
+        if (!this.isDeleting && this.txt === fullTxt) {
+          delta = this.period;
+          this.isDeleting = true;
+        } else if (this.isDeleting && this.txt === '') {
+          this.isDeleting = false;
+          this.loopNum++;
+          delta = 100 - Math.random() * 50;;
+        }
+      
+        setTimeout(function() {
+          that.tick();
+        }, delta);
+      };
+      
+      window.onload = function() {
+        var elements = document.getElementsByClassName('txt-rotate');
+        for (var i=0; i<elements.length; i++) {
+          var toRotate = elements[i].getAttribute('data-rotate');
+          var period = elements[i].getAttribute('data-period');
+          if (toRotate) {
+            new TxtRotate(elements[i], JSON.parse(toRotate), period);
+          }
+        }
+        // INJECT CSS
+        var css = document.createElement("style");
+        css.type = "text/css";
+        css.innerHTML = ".txt-rotate > .wrap { border-right: 0.08em solid #666 }";
+        document.body.appendChild(css);
+      };
+    </script>
   </body>
 </html>
