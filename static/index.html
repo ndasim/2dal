@@ -15,6 +15,13 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5104160120481980"
      crossorigin="anonymous"></script>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="2d.al is a free URL shortening service that provides companies and businesses with unique, customizable, and secure links as well as analytics for the shortened links.">
+    <meta name="keywords" content="url shortener, link shortener, short url, short link, url shortener free, url shortener custom, url shortener custom domain, short url qr, url qr, qr shortener, qr holder, link to qr, shortest qr, shortest url qr, url shortener custom link, url shortener custom name, url shortener custom url, url shortener custom domain, free shortener">
+    <meta name="author" content="2d.al">
+    <meta name="robots" content="index, follow">
+
+
     <style>
       th {
         background-color: transparent !important;
@@ -31,13 +38,13 @@
         refreshHistoryArea();
 
         $("#loading").hide();
-        $("#copy").hide();
+        $(".copy").hide();
 
-        $("#copy").click(function () {
+        $(".copy").click(function () {
           copyToClipboard($("#longUrl").val());
         });
 
-        $("#shorten").click(function () {
+        $(".shorten").click(function () {
           const longUrl = $("#longUrl").val();
           let anyError = false;
 
@@ -75,7 +82,7 @@
 
           // Disable input and button
           $("#longUrl").prop("disabled", true);
-          $("#shorten").prop("disabled", true);
+          $(".shorten").prop("disabled", true);
           
           // Get base url
           var baseUrl = window.location.origin;
@@ -101,8 +108,8 @@
               $("#longUrl").val(data.short_url);
 
               // Show copy button
-              $("#copy").show();
-              $("#shorten").hide();
+              $(".copy").show();
+              $(".shorten").hide();
               
               // Show alert
               $("#successtMessage").text("Shortened & Copied!");
@@ -115,7 +122,7 @@
 
               // Enable input and button
               $("#longUrl").prop("disabled", false);
-              $("#shorten").prop("disabled", false);
+              $(".shorten").prop("disabled", false);
 
               $("#longUrl").select();
               document.execCommand("copy");
@@ -149,21 +156,21 @@
 
               // Enable input and button
               $("#longUrl").prop("disabled", false);
-              $("#shorten").prop("disabled", false);
+              $(".shorten").prop("disabled", false);
             },
           });
         });
 
         $("#longUrl").keyup(function(event) {
           if (event.keyCode === 13) {
-            $("#shorten").click();
+            $(".shorten").click();
           }
         });
 
         $("#longUrl").keypress(function (t) {
           // Show shorten button
-          $("#shorten").show();
-          $("#copy").hide();
+          $(".shorten").show();
+          $(".copy").hide();
 
           $("#longUrl").removeClass("is-invalid");
         });
@@ -285,6 +292,7 @@
 
           // Create a cell for the date
           const td3 = document.createElement('td');
+          td3.classList = ["d-none d-sm-table-cell"]
           td3.textContent = data.date;
 
           // Create a cell for the remove button
@@ -292,7 +300,7 @@
           td4.classList.add('p-0');
           td4.style.whiteSpace = 'nowrap';
           const removeBtn = document.createElement('button');
-          removeBtn.classList.add('btn', 'btn-ghost-danger', 'm-1', 'p-1');
+          removeBtn.classList.add('btn', 'btn-ghost-danger', 'm-sm-1', 'p-sm-1', 'p-0');
           removeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 7l16 0"></path><path d="M10 11l0 6"></path><path d="M14 11l0 6"></path><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path></svg>';
             
           // Add an event listener to the remove button to delete the history item and remove the row
@@ -311,7 +319,7 @@
           
           // Add show QR button for short url, will show QR code in a modal
           const qrBtn = document.createElement('button');
-          qrBtn.classList.add('btn', 'btn-ghost-primary', 'm-1', 'p-1');
+          qrBtn.classList.add('btn', 'btn-ghost-primary', 'm-sm-1', 'p-sm-1', 'p-0');
           qrBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-qrcode m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path><path d="M7 17l0 .01"></path><path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path><path d="M7 7l0 .01"></path><path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path><path d="M17 7l0 .01"></path><path d="M14 14l3 0"></path><path d="M20 14l0 .01"></path><path d="M14 14l0 3"></path><path d="M14 20l3 0"></path><path d="M17 17l3 0"></path><path d="M20 17l0 3"></path></svg>';
           qrBtn.addEventListener('click', () => {
             generateQR(data.shortUrl);
@@ -320,7 +328,7 @@
 
           // Add show QR button for short url, will show QR code in a modal
           const copyBtn = document.createElement('button');
-          copyBtn.classList.add('btn', 'btn-ghost-green', 'm-1', 'p-1');
+          copyBtn.classList.add('btn', 'btn-ghost-green', 'm-sm-1', 'p-sm-1', 'p-0');
           copyBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path><path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path></svg>';
           copyBtn.addEventListener('click', () => {
             copyToClipboard($("#longUrl").val());
@@ -388,8 +396,9 @@
           2d.al
         </div>
         <div class="mb-3" style='font-size: 1.5rem; font-weight: 500; font-family: "Noto Sans", sans-serif'>
+          >
           <span
-            class="txt-rotate"
+            class="txt-rotate "
             data-period="2000"
             data-rotate='[ "Elevate your links with our URL shortener.",
             "Shorten URLs, boost engagement!",
@@ -420,9 +429,15 @@
                 <span id="loading" class="input-group-text">
                   <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
                 </span>
-                <button class="btn" type="button" id="shorten">Lets Shorten!</button>
-                <button class="btn" type="button" id="copy">Copy!</button>
+                <button class="btn d-none d-sm-block shorten" type="button">Lets Shorten!</button>
+                <button class="btn d-none d-sm-block shorten" type="button">Copy!</button>
               </div>
+            </div>
+          </div>
+          <div class="d-block d-sm-none mt-2 row align-items-center">
+            <div class="input-group">
+              <button class="btn shorten col-12" type="button">Lets Shorten!</button>
+              <button class="btn copy col-12" type="button">Copy!</button>
             </div>
           </div>
           <div class="row my-2">
@@ -451,8 +466,8 @@
                             <tr>
                               <th>Short URL</th>
                               <th>Long URL</th>
-                              <th>Date</th>
-                              <th>Actions</th>
+                              <th class="d-none d-sm-table-cell">Date</th>
+                              <th >Actions</th>
                             </tr>
                           </thead>
                           <tbody id="historyBody">
@@ -471,61 +486,18 @@
 
     <script src="static/back-anim.js"></script>
     <script>
-      var TxtRotate = function(el, toRotate, period) {
-        this.toRotate = toRotate;
-        this.el = el;
-        this.loopNum = 0;
-        this.period = parseInt(period, 10) || 2000;
-        this.txt = '';
-        this.tick();
-        this.isDeleting = false;
-      };
-      
-      TxtRotate.prototype.tick = function() {
-        var i = this.loopNum % this.toRotate.length;
-        var fullTxt = this.toRotate[i];
-      
-        if (this.isDeleting) {
-          this.txt = fullTxt.substring(0, this.txt.length - 1);
-        } else {
-          this.txt = fullTxt.substring(0, this.txt.length + 1);
-        }
-      
-        this.el.innerHTML = '<span class="wrap">'+this.txt+'</span>';
-      
-        var that = this;
-        var delta = 100 - Math.random() * 50;
-      
-        if (this.isDeleting) { delta /= 2; }
-      
-        if (!this.isDeleting && this.txt === fullTxt) {
-          delta = this.period;
-          this.isDeleting = true;
-        } else if (this.isDeleting && this.txt === '') {
-          this.isDeleting = false;
-          this.loopNum++;
-          delta = 100 - Math.random() * 50;;
-        }
-      
-        setTimeout(function() {
-          that.tick();
-        }, delta);
-      };
-      
+    
       window.onload = function() {
         var elements = document.getElementsByClassName('txt-rotate');
+        
         for (var i=0; i<elements.length; i++) {
           var toRotate = elements[i].getAttribute('data-rotate');
-          var period = elements[i].getAttribute('data-period');
           if (toRotate) {
-            new TxtRotate(elements[i], JSON.parse(toRotate), period);
+            dizi = JSON.parse(toRotate);        
+            const random = Math.floor(Math.random() * dizi.length);
+            elements[i].textContent = dizi[random];
           }
         }
-        // INJECT CSS
-        var css = document.createElement("style");
-        css.type = "text/css";
-        css.innerHTML = ".txt-rotate > .wrap { border-right: 0.08em solid #666 }";
-        document.body.appendChild(css);
       };
     </script>
   </body>
