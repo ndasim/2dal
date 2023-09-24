@@ -14,10 +14,57 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5104160120481980"
      crossorigin="anonymous"></script>
 
+    <style>
+      th {
+        background-color: transparent !important;
+      }
+    </style>
+
     <script>
       console.log("I'm");
+      
+      /*
+       * A function for saving shorted urls to local storage
+       * the storage will hold shortUrl, longUrl, and date
+       * the storage will be used to show history
+      */
+      function saveToLocalStorage(shortUrl, longUrl) {
+        const date = new Date().toLocaleString();
+        const data = { shortUrl, longUrl, date };
+        const history = JSON.parse(localStorage.getItem('history')) || [];
+        history.push(data);
+        localStorage.setItem('history', JSON.stringify(history));
+      }
+
+      function getHistoryFromLocalStorage() {
+        const history = JSON.parse(localStorage.getItem('history')) || [];
+        return history;
+      }
+
+      function deleteFromLocalStorage(shortUrl) {
+        const history = JSON.parse(localStorage.getItem('history')) || [];
+        const updatedHistory = history.filter(data => data.shortUrl !== shortUrl);
+        localStorage.setItem('history', JSON.stringify(updatedHistory));
+      }
+
+      function refreshHistoryArea() {
+        const history = getHistoryFromLocalStorage();
+
+        if(history.length > 0){
+          $(".empty").hide();
+          $("#history-area").show();
+          buildHistoryList(history);
+        }
+        else{
+          $(".empty").show();
+          $("#history-area").hide();
+        }
+      }
+
       $(document).ready(function () {
         console.log("ready!");
+
+        refreshHistoryArea();
 
         $("#loading").hide();
         $("#copy").hide();
@@ -28,14 +75,51 @@
         });
 
         $("#shorten").click(function () {
+          const longUrl = $("#longUrl").val();
+          let anyError = false;
+
+          if (longUrl === "") {
+            showError("Please enter a URL!");
+          } else if (!longUrl.match(/^(https?:\/\/)?[a-zA-Z0-9]+\.[a-zA-Z0-9]+[a-zA-Z0-9./#?&=]*$/)) {
+            showError("This URL is not valid!");
+          } else if (!longUrl.includes(".")) {
+            showError("This URL is not valid!");
+          }else if (longUrl.length < 9) {
+            showError("This URL is too short to shorten! Better use it as it is.");
+          } else if (longUrl.length > 2048) {
+            showError("This URL is too long!");
+          } else if (longUrl.includes("2d.al")) {
+            showError("You can't shorten a shortened URL!");
+          }
+
+          function showError(message) {
+            anyError = true;
+            $("#longUrl").addClass("is-invalid");
+            $("#alertMessage").text(message);
+            $("#alert").addClass("show");
+
+            setTimeout(function () {
+              $("#alert").removeClass("show");
+            }, 3000);
+          }
+
+          if(anyError){
+            return;
+          }
+
+          // Show loading
           $("#loading").show();
 
           // Disable input and button
           $("#longUrl").prop("disabled", true);
           $("#shorten").prop("disabled", true);
+          
+          // Get base url
+          var baseUrl = window.location.origin;
 
+          // Send request to api base_url
           $.get({
-            url: "http://localhost/api/create/",
+            url: baseUrl + "/api/create",
             data: {
               url: "https://" + $("#longUrl").val(),
             },
@@ -72,13 +156,27 @@
 
               $("#longUrl").select();
               document.execCommand("copy");
+
+              // Save to local storage
+              saveToLocalStorage(data.short_url, data.origin_url);
+
+              // Refresh history
+              refreshHistoryArea();
+
               //generateQR(data.short_url);
             },
             error: function (xhr, status, error) {
               $("#loading").hide();
+              
+              if(xhr.responseJSON){
+                $("#longUrk").addClass("is-invalid");
+                $("#alertMessage").text(xhr.responseJSON.Errors.Url);
+              }
+              else{
+                $("#alertMessage").text("Something went wrong!");
+              }
 
               // Show alert
-              $("#alertMessage").text(xhr.responseText ?? "Something went wrong!");
               $("#alert").addClass("show");
 
               // Disappear alert after 3 seconds
@@ -93,19 +191,26 @@
           });
         });
 
+        $("#longUrl").keyup(function(event) {
+          if (event.keyCode === 13) {
+            $("#shorten").click();
+          }
+        });
+
         $("#longUrl").keypress(function (t) {
           // Show shorten button
           $("#shorten").show();
           $("#copy").hide();
+
+          $("#longUrl").removeClass("is-invalid");
         });
       });
 
-      function generateQR(text) {
-        var qr = qrcode(0, "L");
-        qr.addData(text);
-        qr.make();
-        document.getElementById("qr").innerHTML = qr.createImgTag();
+      function generateQR(text){
+        document.getElementById("qr").innerHTML = "";
+        document.getElementById("qr").appendChild(QRCode.generateSVG(text));
       }
+
 
       function generateHtmlQR(){
           var qrData = QRCode.generate(t.target.value);
@@ -127,6 +232,75 @@
               qrContainer.appendChild(cell);
             }
           }
+      }
+
+      function buildHistoryList(history) {
+        // Create a table body with rows for each history item
+        const tbody = $('#historyBody');
+        tbody.html("");
+
+        history.forEach(data => {
+          const tr = document.createElement('tr');
+
+          // Create a cell for the short URL with a clickable link
+          const td1 = document.createElement('td');
+          const a1 = document.createElement('a');
+          a1.href = "https://" + data.shortUrl;
+          a1.textContent = data.shortUrl;
+          td1.appendChild(a1);
+
+          // Create a cell for the long URL with a clickable link
+          const td2 = document.createElement('td');
+          const a2 = document.createElement('a');
+          a2.href = data.longUrl;
+          a2.textContent = data.longUrl;
+          td2.appendChild(a2);
+
+          // Create a cell for the date
+          const td3 = document.createElement('td');
+          td3.textContent = data.date;
+
+          // Create a cell for the remove button
+          const td4 = document.createElement('td');
+          td4.classList.add('p-0');
+          td4.style.whiteSpace = 'nowrap';
+          const removeBtn = document.createElement('button');
+          removeBtn.classList.add('btn', 'btn-ghost-danger', 'm-1', 'p-1');
+          removeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 7l16 0"></path><path d="M10 11l0 6"></path><path d="M14 11l0 6"></path><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path></svg>';
+            
+          // Add an event listener to the remove button to delete the history item and remove the row
+          removeBtn.addEventListener('click', () => {
+            // Ask for confirmation
+            if(!confirm("Are you sure you want to delete this record?")){
+              return;
+            }
+
+            deleteFromLocalStorage(data.shortUrl);
+            tr.remove();
+
+            // Refresh history
+            refreshHistoryArea();
+          });
+          
+          // Add show QR button for short url, will show QR code in a modal
+          const qrBtn = document.createElement('button');
+          qrBtn.classList.add('btn', 'btn-ghost-primary', 'm-1', 'p-1');
+          qrBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-qrcode m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path><path d="M7 17l0 .01"></path><path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path><path d="M7 7l0 .01"></path><path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path><path d="M17 7l0 .01"></path><path d="M14 14l3 0"></path><path d="M20 14l0 .01"></path><path d="M14 14l0 3"></path><path d="M14 20l3 0"></path><path d="M17 17l3 0"></path><path d="M20 17l0 3"></path></svg>';
+          qrBtn.addEventListener('click', () => {
+            generateQR(data.shortUrl);
+            $("#qrModal").modal('show');
+          });
+
+          td4.appendChild(removeBtn);
+          td4.appendChild(qrBtn);
+
+          // Add all cells to the row and add the row to the table body
+          tr.appendChild(td1);
+          tr.appendChild(td2);
+          tr.appendChild(td3);
+          tr.appendChild(td4);
+          tbody.append(tr);
+        });
       }
     </script>
 
@@ -150,6 +324,14 @@
   </head>
 
   <body>
+    <div class="modal modal-blur fade" id="qrModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 400px;">
+        <div class="modal-content">
+          <div id="qr" class="modal-body text-center m-0 p-0"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="position-fixed top-0 end-0 p-3">
       <div id="alert" class="alert alert-danger alert-dismissible fade" role="alert">
         <strong id="alertMessage"></strong>
@@ -196,7 +378,6 @@
             <div class="col-12">
               <div class="card">
                 <div class="card-body">
-                  <p>History</p>
                   <div class="empty">
                     <div class="empty-icon">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -211,6 +392,23 @@
                     <p class="empty-subtitle text-secondary">
                       Try shortening some urls!
                     </p>
+                  </div>
+                  <div id="history-area">
+                    <div class="table-responsive">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Short URL</th>
+                              <th>Long URL</th>
+                              <th>Date</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody id="historyBody">
+
+                          </tbody>
+                        </table>
+                    </div> 
                   </div>
                 </div>
               </div>
