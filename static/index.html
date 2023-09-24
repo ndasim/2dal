@@ -82,7 +82,7 @@
 
           if (longUrl === "") {
             showError("Please enter a URL!");
-          } else if (!longUrl.match(/^(https?:\/\/)?[a-zA-Z0-9]+\.[a-zA-Z0-9]+[a-zA-Z0-9./#?&=]*$/)) {
+          } else if (!longUrl.match(/^(https?:\/\/)?[a-zA-Z0-9]+\.[a-zA-Z0-9]+[a-zA-Z0-9./#?&=-]*$/)) {
             showError("This URL is not valid!");
           } else if (!longUrl.includes(".")) {
             showError("This URL is not valid!");
