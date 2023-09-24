@@ -37,8 +37,8 @@
 
         refreshHistoryArea();
 
-        $("#loading").hide();
-        $(".copy").hide();
+        $("#loading").attr('style','display:none !important');
+        $(".copy").attr('style','display:none !important');
 
         $(".copy").click(function () {
           copyToClipboard($("#longUrl").val());
@@ -101,7 +101,7 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-              $("#loading").hide();
+              $("#loading").attr('style','display:none !important');
               console.log(data);
 
               // Show shortened url
@@ -109,7 +109,7 @@
 
               // Show copy button
               $(".copy").show();
-              $(".shorten").hide();
+              $(".shorten").attr('style','display:none !important');
               
               // Show alert
               $("#successtMessage").text("Shortened & Copied!");
@@ -136,7 +136,7 @@
               //generateQR(data.short_url);
             },
             error: function (xhr, status, error) {
-              $("#loading").hide();
+              $("#loading").attr('style','display:none !important');
               
               if(xhr.responseJSON){
                 $("#longUrk").addClass("is-invalid");
@@ -170,7 +170,7 @@
         $("#longUrl").keypress(function (t) {
           // Show shorten button
           $(".shorten").show();
-          $(".copy").hide();
+          $(".copy").attr('style','display:none !important');
 
           $("#longUrl").removeClass("is-invalid");
         });
@@ -214,13 +214,13 @@
         const history = getHistoryFromLocalStorage();
 
         if(history.length > 0){
-          $(".empty").hide();
+          $(".empty").attr('style','display:none !important');
           $("#history-area").show();
           buildHistoryList(history);
         }
         else{
           $(".empty").show();
-          $("#history-area").hide();
+          $("#history-area").attr('style','display:none !important');
         }
       }
 
@@ -430,7 +430,7 @@
                   <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
                 </span>
                 <button class="btn d-none d-sm-block shorten" type="button">Lets Shorten!</button>
-                <button class="btn d-none d-sm-block shorten" type="button">Copy!</button>
+                <button class="btn d-none d-sm-block copy" type="button">Copy!</button>
               </div>
             </div>
           </div>
