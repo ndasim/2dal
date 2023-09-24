@@ -144,6 +144,7 @@ func (link *Link) FindOrigin(origin string) error {
 	return nil
 }
 
+// https://ericlippert.com/2013/11/14/a-practical-use-of-multiplicative-inverses/
 func Rhash(n int) string {
 	return base62.Encode(n * 1881 % 100000)
 }
